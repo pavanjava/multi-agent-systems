@@ -1,0 +1,13 @@
+[project]
+name = "multi-agent-systems"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = [
+    "agno>=3.0.6",
+    "google-genai>=2.22.0",
+    "openai>=3.8.0",
+    "temporal"
+]
+
+[tool.uv.sources]
+temporal = { path = "/Users/pavanmantha/Pavans/Phd/research_codebase/TempoRAL/tempo-ral", editable = true }
