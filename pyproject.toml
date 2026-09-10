@@ -3,11 +3,13 @@ name = "multi-agent-systems"
 version = "0.1.0"
 requires-python = ">=3.13"
 dependencies = [
-    "agno>=3.0.6",
+    "agno>=3.0.9",
     "google-genai>=2.22.0",
-    "openai>=3.8.0",
-    "temporal"
+    "openai>=3.10.0",
+    "sqlalchemy>=2.0.52",
+    "ddgs>=9.16.0",
+    "redis>=8.1.0",
+    "qdrant_client>=1.19.0",
+    "fastembed>=0.8.0",
+    "tavily-python>=0.8.1"
 ]
-
-[tool.uv.sources]
-temporal = { path = "/Users/pavanmantha/Pavans/Phd/research_codebase/TempoRAL/tempo-ral", editable = true }
