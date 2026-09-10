@@ -11,5 +11,8 @@ dependencies = [
     "redis>=8.1.0",
     "qdrant_client>=1.19.0",
     "fastembed>=0.8.0",
-    "tavily-python>=0.8.1"
+    "tavily-python>=0.8.1",
+    "yfinance>=1.7.0",
+    "ollama>=0.6.2",
+    "pypdf>=6.18.0"
 ]

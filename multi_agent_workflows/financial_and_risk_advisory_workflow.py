@@ -6,6 +6,7 @@ import asyncio
 from datetime import datetime
 
 from agno.agent.agent import Agent
+from agno.models.google import Gemini
 from agno.tools.tavily import TavilyTools
 from agno.tools.yfinance import YFinanceTools
 from agno.workflow.condition import Condition
@@ -26,6 +27,7 @@ user_id = '7f3a9c2e8b1d4f6a'
 # === FINANCIAL AGENTS ===
 market_data_agent = Agent(
     name="Market Data Analyst",
+    model=Gemini(id="gemini-3.1-flash-lite", api_key=os.environ.get("GEMINI_API_KEY")),
     instructions="""You are a market data analyst. Your role is to:
     - Fetch real-time stock prices, financial metrics, and market data
     - Analyze historical price trends and trading volumes
@@ -40,6 +42,7 @@ market_data_agent = Agent(
 
 news_analyst_agent = Agent(
     name="Financial News Analyst",
+    model=Gemini(id="gemini-3.1-flash-lite", api_key=os.environ.get("GEMINI_API_KEY")),
     instructions="""You are a financial news analyst. Your role is to:
     - Search for latest financial news and earnings reports
     - Identify market-moving events and sentiment
@@ -54,6 +57,7 @@ news_analyst_agent = Agent(
 
 fundamental_analyst_agent = Agent(
     name="Fundamental Analyst",
+    model=Gemini(id="gemini-3.1-flash-lite", api_key=os.environ.get("GEMINI_API_KEY")),
     instructions="""You are a fundamental analyst. Your role is to:
     - Analyze company financials (P/E, EPS, revenue, profit margins)
     - Evaluate business model and competitive advantages
@@ -68,6 +72,7 @@ fundamental_analyst_agent = Agent(
 
 risk_analyst_agent = Agent(
     name="Risk Analyst",
+    model=Gemini(id="gemini-3.1-flash-lite", api_key=os.environ.get("GEMINI_API_KEY")),
     instructions="""You are a risk analyst. Your role is to:
     - Assess volatility and beta metrics
     - Identify potential risks (market, sector, company-specific)
@@ -83,6 +88,7 @@ risk_analyst_agent = Agent(
 
 portfolio_strategist_agent = Agent(
     name="Portfolio Strategist",
+    model=Gemini(id="gemini-3.1-flash-lite", api_key=os.environ.get("GEMINI_API_KEY")),
     instructions="""You are a portfolio strategist. Your role is to:
     - Synthesize all research data into actionable insights
     - Provide investment recommendations with clear reasoning
