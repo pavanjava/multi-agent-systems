@@ -2,7 +2,7 @@ import os
 
 from qdrant_client import QdrantClient, models
 from fastembed import SparseTextEmbedding, TextEmbedding
-from typing import List, Dict
+from typing import List, Dict, Optional, Any
 from dotenv import load_dotenv, find_dotenv
 
 load_dotenv(find_dotenv())
@@ -11,10 +11,11 @@ load_dotenv(find_dotenv())
 class SemanticLongTermMemory:
     def __init__(
             self,
-            collection_name: str = "long_term_memory",
-            qdrant_url: str = "http://localhost:6333",
-            sparse_model: str = "prithvida/Splade_PP_en_v1",
-            dense_model: str = "BAAI/bge-small-en-v1.5"
+            collection_name: str | None = None,
+            qdrant_url: str | None = None,
+            sparse_model: str | None = None,
+            dense_model: str | None = None,
+            dense_vector_size: int | None = None,
     ):
         """
         Initialize LongTermMemory with Qdrant client and embedding models.
@@ -24,9 +25,17 @@ class SemanticLongTermMemory:
             qdrant_url: URL of the Qdrant instance
             sparse_model: Model for sparse embeddings
             dense_model: Model for dense embeddings
+            dense_vector_size: Dimension of the dense model output
+
+        All arguments fall back to .env values, then to built-in defaults.
         """
+        qdrant_url = qdrant_url or os.environ.get("QDRANT_URL", "http://localhost:6333")
+        self.collection_name = collection_name or os.environ.get("LTM_COLLECTION_NAME", "long_term_memory")
+        sparse_model = sparse_model or os.environ.get("LTM_SPARSE_MODEL", "prithvida/Splade_PP_en_v1")
+        dense_model = dense_model or os.environ.get("LTM_DENSE_MODEL", "BAAI/bge-small-en-v1.5")
+        self.dense_vector_size = dense_vector_size or int(os.environ.get("LTM_DENSE_VECTOR_SIZE", "384"))
+
         self.client = QdrantClient(url=qdrant_url, api_key=os.environ.get("QDRANT_API_KEY"))
-        self.collection_name = collection_name
 
         # Initialize embedding models
         self.sparse_model = SparseTextEmbedding(model_name=sparse_model)
@@ -42,7 +51,7 @@ class SemanticLongTermMemory:
                 collection_name=self.collection_name,
                 vectors_config={
                     "text-dense": models.VectorParams(
-                        size=384,  # bge-small-en-v1.5 dimension
+                        size=self.dense_vector_size,  # must match LTM_DENSE_MODEL output dim
                         distance=models.Distance.COSINE,
                     )
                 },
@@ -97,13 +106,14 @@ class SemanticLongTermMemory:
 
         return point_id
 
-    def retrieve(self, query: str, limit: int = 5) -> List[Dict]:
+    def retrieve(self, query: str, limit: int = 5, filters: Optional[Dict[str, Any]] = None) -> List[Dict]:
         """
         Retrieve relevant documents for a given query using hybrid search.
 
         Args:
             query: The search query
             limit: Maximum number of results to return
+            filters: Optional exact-match payload filters, e.g. {"user_id": "..."}
 
         Returns:
             List of dictionaries containing document text and metadata
@@ -111,6 +121,16 @@ class SemanticLongTermMemory:
         # Generate query embeddings
         dense_query = list(self.dense_model.embed([query]))[0].tolist()
         sparse_query = list(self.sparse_model.embed([query]))[0]
+
+        # Build payload filter (applied inside each prefetch so hybrid candidates are already scoped)
+        query_filter = None
+        if filters:
+            query_filter = models.Filter(
+                must=[
+                    models.FieldCondition(key=k, match=models.MatchValue(value=v))
+                    for k, v in filters.items()
+                ]
+            )
 
         # Perform hybrid search
         results = self.client.query_points(
@@ -120,6 +140,7 @@ class SemanticLongTermMemory:
                     query=dense_query,
                     using="text-dense",
                     limit=limit,
+                    filter=query_filter,
                 ),
                 models.Prefetch(
                     query=models.SparseVector(
@@ -128,6 +149,7 @@ class SemanticLongTermMemory:
                     ),
                     using="text-sparse",
                     limit=limit,
+                    filter=query_filter,
                 ),
             ],
             query=models.FusionQuery(fusion=models.Fusion.RRF),

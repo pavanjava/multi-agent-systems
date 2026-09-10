@@ -7,10 +7,9 @@ import os
 from textwrap import dedent
 
 from agno.agent import Agent
-from agno.db.postgres import PostgresDb
-from agno.models.openai import OpenAIChat
+from agno.models.google import Gemini
 from agno.team import Team
-from agno.tools.duckduckgo import DuckDuckGoTools
+from agno.tools.tavily import TavilyTools
 from agno.workflow.types import StepInput, StepOutput
 from agno.workflow.workflow import Workflow
 from dotenv import load_dotenv, find_dotenv
@@ -18,20 +17,19 @@ from dotenv import load_dotenv, find_dotenv
 from semantic_memory.memory_util import ShortTermMemory, LongTermMemory
 
 load_dotenv(find_dotenv())
-db = PostgresDb(db_url=os.environ.get("DATABASE_URL"))
 
-short_term_memory = ShortTermMemory(time_to_live=300)
+short_term_memory = ShortTermMemory()
 long_term_memory = LongTermMemory()
 user_id = '7f3a9c2e8b1d4f6a'
 
 # Define agents
 medical_literature_agent = Agent(
     name="Medical Literature Agent",
-    model=OpenAIChat(id="gpt-4o-mini"),
-    tools=[DuckDuckGoTools()],
+    model=Gemini(id="gemini-2.5-flash", api_key=os.environ.get("GEMINI_API_KEY")),
+    tools=[TavilyTools(api_key=os.environ.get("TAVILY_API_KEY"))],
     role="Search for peer-reviewed medical research, clinical trials, and latest treatment protocols",
     db=short_term_memory.memory(),
-    enable_user_memories=True,
+    build_user_context=True,
     enable_agentic_memory=True,
     user_id=user_id,
     debug_mode=True,
@@ -39,11 +37,11 @@ medical_literature_agent = Agent(
 
 clinical_guidelines_agent = Agent(
     name="Clinical Guidelines Agent",
-    model=OpenAIChat(id="gpt-4o-mini"),
-    # tools=[DuckDuckGoTools()],  # Replace with medical database tools if available
+    model=Gemini(id="gemini-2.5-flash", api_key=os.environ.get("GEMINI_API_KEY")),
+    tools=[TavilyTools(api_key=os.environ.get("TAVILY_API_KEY"))],  # Replace with medical database tools if available
     role="Extract evidence-based guidelines, dosage protocols, and contraindications from medical databases",
     db=short_term_memory.memory(),
-    enable_user_memories=True,
+    build_user_context=True,
     enable_agentic_memory=True,
     user_id=user_id,
     debug_mode=True,
@@ -51,10 +49,10 @@ clinical_guidelines_agent = Agent(
 
 diagnostic_specialist_agent = Agent(
     name="Diagnostic Specialist Agent",
-    model=OpenAIChat(id="gpt-4o-mini"),
+    model=Gemini(id="gemini-2.5-flash", api_key=os.environ.get("GEMINI_API_KEY")),
     instructions="Analyze patient symptoms, lab results, and medical history to provide differential diagnosis recommendations",
     db=short_term_memory.memory(),
-    enable_user_memories=True,
+    build_user_context=True,
     enable_agentic_memory=True,
     user_id=user_id,
     debug_mode=True,
@@ -112,6 +110,7 @@ async def prepare_diagnostic_report_input(step_input: StepInput) -> StepOutput:
 # Define medical research team
 medical_research_team = Team(
     name="Medical Research Team",
+    model=Gemini(id="gemini-2.5-flash", api_key=os.environ.get("GEMINI_API_KEY")),
     members=[clinical_guidelines_agent, medical_literature_agent],
     instructions="Conduct comprehensive medical literature review and extract clinical guidelines for patient case analysis",
     debug_mode=True,
@@ -123,7 +122,6 @@ if __name__ == "__main__":
     clinical_diagnosis_workflow = Workflow(
         name="Clinical Diagnostic Support Workflow",
         description="AI-assisted diagnostic analysis using latest medical research and clinical guidelines",
-        # db=PostgresDb(session_table="clinical_workflow_session", db_url=os.environ.get("DATABASE_URL")),
         steps=[
             prepare_patient_case_input,
             medical_research_team,
@@ -154,4 +152,4 @@ if __name__ == "__main__":
     )
 
     print(response.content)
-    # long_term_memory.memory().insert(text=response.content, metadata={'user_id': user_id})
+    long_term_memory.memory().insert(text=response.content, metadata={'user_id': user_id, "workflow_id": response.workflow_id})
