@@ -5,6 +5,7 @@ import asyncio
 import os
 
 from agno.agent import Agent
+from agno.models.google import Gemini
 from agno.tools.tavily import TavilyTools
 from agno.db.postgres import PostgresDb
 from agno.workflow import Step, Workflow
@@ -14,7 +15,6 @@ from dotenv import load_dotenv, find_dotenv
 from semantic_memory.memory_util import ShortTermMemory, LongTermMemory
 
 load_dotenv(find_dotenv())
-db = PostgresDb(db_url=os.environ.get("DATABASE_URL"))
 
 short_term_memory = ShortTermMemory(time_to_live=120)
 long_term_memory = LongTermMemory()
@@ -23,6 +23,7 @@ user_id = '7f3a9c2e8b1d4f6a'
 # Create specialized legal agents
 case_researcher = Agent(
     name="Case Law Researcher",
+    model=Gemini(id="gemini-3.1-flash", api_key=os.environ.get("GEMINI_API_KEY")),
     tools=[TavilyTools(api_key=os.environ.get("TAVILY_API_KEY"))],
     description="Specialized in finding relevant case law and legal precedents",
     instructions="Search for relevant case law, judicial opinions, and legal precedents",
@@ -34,6 +35,7 @@ case_researcher = Agent(
 
 statute_researcher = Agent(
     name="Statutory Researcher",
+    model=Gemini(id="gemini-3.1-flash", api_key=os.environ.get("GEMINI_API_KEY")),
     tools=[TavilyTools(api_key=os.environ.get("TAVILY_API_KEY"))],
     description="Specialized in researching statutes, regulations, and legislative history",
     instructions="Search for applicable statutes, regulations, and legislative materials",
@@ -45,6 +47,7 @@ statute_researcher = Agent(
 
 legal_analyst = Agent(
     name="Legal Analyst",
+    model=Gemini(id="gemini-3.1-flash", api_key=os.environ.get("GEMINI_API_KEY")),
     description="Analyzes legal research and synthesizes findings into coherent legal arguments",
     instructions="Synthesize research findings into a comprehensive legal memorandum with clear arguments and citations",
     db=short_term_memory.memory(),
@@ -55,6 +58,7 @@ legal_analyst = Agent(
 
 compliance_reviewer = Agent(
     name="Compliance Reviewer",
+    model=Gemini(id="gemini-3.1-flash", api_key=os.environ.get("GEMINI_API_KEY")),
     description="Reviews legal documents for accuracy, completeness, and ethical compliance",
     instructions="Review the legal memorandum for accuracy, cite-checking, and compliance with professional standards",
     db=short_term_memory.memory(),
@@ -96,7 +100,7 @@ legal_workflow = Workflow(
         analysis_step,
         review_step,
     ],
-    db=PostgresDb(session_table="clinical_workflow_session", db_url=os.environ.get("DATABASE_URL")),
+    db=short_term_memory.memory(),
 )
 
 if __name__ == "__main__":
