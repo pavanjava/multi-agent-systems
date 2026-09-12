@@ -14,5 +14,7 @@ dependencies = [
     "tavily-python>=0.8.1",
     "yfinance>=1.7.0",
     "ollama>=0.6.2",
-    "pypdf>=6.18.0"
+    "pypdf>=6.18.0",
+    "mcp>=2.2.0",
+    "fastmcp>=4.0.3"
 ]
