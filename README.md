@@ -18,7 +18,6 @@ multi_agent_teams/         4. Multiple agents collaborating as a team
 multi_agent_workflows/     5. Multi-step pipelines (sequential, parallel, conditional)
 semantic_memory/           Shared building blocks: vector search & memory storage
 data/                      Sample PDFs / datasets used by the RAG examples
-playground.py              Interactive UI to chat with these agents in a browser
 ```
 
 ### 1. `basic_agents/` — Start here
@@ -87,14 +86,6 @@ uv run python basic_agents/agent_with_instructions.py
 ```
 
 Swap in the path to any other script in the same way. Read the file itself first — most are short and heavily illustrate one specific concept.
-
-## Explore interactively
-
-```bash
-uv run python playground.py
-```
-
-This launches agno's Playground UI in your browser, where you can chat with the agents instead of running scripts one at a time.
 
 ## Suggested learning path
 
