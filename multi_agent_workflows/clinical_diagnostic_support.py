@@ -4,6 +4,7 @@ use case of sequential execution of workflow
 
 import asyncio
 import os
+import mlflow
 from textwrap import dedent
 
 from agno.agent import Agent
@@ -17,6 +18,11 @@ from dotenv import load_dotenv, find_dotenv
 from semantic_memory.memory_util import ShortTermMemory, LongTermMemory
 
 load_dotenv(find_dotenv())
+
+# Enable MLflow tracing for Agno
+mlflow.set_tracking_uri("http://127.0.0.1:5000")
+mlflow.set_experiment("Medical Agent Workflow")
+mlflow.agno.autolog()
 
 short_term_memory = ShortTermMemory()
 long_term_memory = LongTermMemory()
@@ -135,7 +141,7 @@ if __name__ == "__main__":
     response = asyncio.run(
         clinical_diagnosis_workflow.arun(
             input="""
-            My name is Dr. Pavan Kumar and I have a patient 45-year-old male presenting with:
+            My name is Dr. Pavan Kumar Mantha and I have a patient 45-year-old male presenting with:
             - Persistent fatigue for 3 months
             - Unexplained weight loss (15 lbs)
             - Intermittent fever (99-101°F)

@@ -3,6 +3,7 @@ use case of conditional step executions of workflow
 """
 import os
 import asyncio
+import mlflow
 from datetime import datetime
 
 from agno.agent.agent import Agent
@@ -18,6 +19,11 @@ from semantic_memory.memory_util import ShortTermMemory, LongTermMemory
 from dotenv import load_dotenv, find_dotenv
 
 load_dotenv(find_dotenv())
+
+# Enable MLflow tracing for Agno
+mlflow.set_tracking_uri("http://0.0.0.0:5001")
+mlflow.set_experiment("Financial Analyst Agent With Memory")
+mlflow.agno.autolog()
 
 # Initialize memory
 short_term_memory = ShortTermMemory()

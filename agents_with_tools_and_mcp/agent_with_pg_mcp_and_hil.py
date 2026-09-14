@@ -1,7 +1,7 @@
 """
 Confirmation Required MCP Toolkit (fixed)
 ==========================================
-
+NOTE: Before this code make sure the postgresql_mcp server is up and running.
 Human-in-the-Loop: Adding User Confirmation to Tool Calls with MCP Servers.
 """
 
