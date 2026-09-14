@@ -6,7 +6,7 @@ Agent With Instructions Quickstart.
 """
 
 from agno.agent import Agent
-from agno.models.openai import OpenAIResponses
+from agno.models.google import Gemini
 from dotenv import load_dotenv, find_dotenv
 # from temporal import MemoryManager
 #
@@ -28,7 +28,7 @@ Answer with exactly 3 bullet points when possible.\
 # ---------------------------------------------------------------------------
 agent = Agent(
     name="Instruction-Tuned Agent",
-    model=OpenAIResponses(id="gpt-5.2"),
+    model=Gemini(id="gemini-3.1-flash-lite"),
     instructions=instructions,
 )
 

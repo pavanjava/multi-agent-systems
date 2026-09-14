@@ -5,7 +5,7 @@ User Feedback (Structured Questions)
 Human-in-the-Loop: Presenting structured questions with predefined options.
 Uses UserFeedbackTools to pause the agent and collect user selections.
 """
-
+import mlflow
 from agno.agent import Agent
 from agno.db.sqlite import SqliteDb
 from agno.models.google import Gemini
@@ -14,6 +14,11 @@ from agno.utils import pprint
 from dotenv import load_dotenv, find_dotenv
 
 load_dotenv(find_dotenv())
+
+# Enable MLflow tracing for Agno
+# mlflow.set_tracking_uri("http://127.0.0.1:5000")
+# mlflow.set_experiment("Basic Agent With HIL")
+# mlflow.agno.autolog()
 
 # ---------------------------------------------------------------------------
 # Create Agent

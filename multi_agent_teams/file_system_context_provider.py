@@ -6,7 +6,6 @@ from pathlib import Path
 
 from agno.agent import Agent
 from agno.context.fs import FilesystemContextProvider
-from agno.tools.file import FileTools
 from agno.models.openai import OpenAIResponses
 from dotenv import load_dotenv, find_dotenv
 

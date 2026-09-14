@@ -133,7 +133,7 @@ def sync_reasoning_demo() -> None:
     print("Coordinated Reasoning RAG Team Demo")
     print("=" * 50)
 
-    query = "What two criteria must be met for an exchange of related Classes within a Series to be permitted?"
+    query = "What does FHA Section 223(f) of the Housing Act provide for?"
 
     coordinated_reasoning_team.print_response(
         query,
